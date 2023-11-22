@@ -25,24 +25,37 @@ async register(user: RegisterAuthDto) {
     const emailExist = await this.usersRepository.findOneBy({email: email });
     
     if (emailExist){
-        return new HttpException('El email ya esta registrado', HttpStatus.CONFLICT)
+        throw new HttpException('El email ya esta registrado', HttpStatus.CONFLICT)
     }
 
     const phoneExist = await this.usersRepository.findOneBy({phone:phone})
     if (phoneExist){
-        return new HttpException('El telefono ya esta registrado',HttpStatus.CONFLICT)
+        throw new HttpException('El telefono ya esta registrado',HttpStatus.CONFLICT)
     }
     
     
     const newUser = this.usersRepository.create(user);
-    const rolesIds = user.rolesIds;
+    
+    let rolesIds = [];
+    if(user.rolesIds !== undefined && user.rolesIds !== null){
+
+        const rolesIds = user.rolesIds;
+    }
+    else{
+        rolesIds.push('CLIENT') //LE COLOCAMOS UN ROL POR DEFECTO
+    }
     const roles = await this.rolesRepository.findBy({id: In(rolesIds) });
     newUser.roles = roles;
 
 
     const userSaved = await  this.usersRepository.save(newUser);
+const rolesString = userSaved.roles.map(rol=> rol.id);
 
-    const payload = {id: userSaved.id, name: userSaved.name};
+    const payload = {
+        id: userSaved.id, 
+        name: userSaved.name,
+        roles: rolesString
+    };
     const token = this.jwtService.sign(payload);
     const data ={
         user:userSaved,
@@ -65,7 +78,7 @@ async login(loginData: LoginAuthDto){
     
     //este if es para verificar si si o no existe
     if (!userfound){
-        return   new HttpException('El email no existe', HttpStatus.NOT_FOUND );// el 404 se usa para datos no econtrados 
+        throw   new HttpException('El email no existe', HttpStatus.NOT_FOUND );// el 404 se usa para datos no econtrados 
    
     }
 
@@ -73,7 +86,7 @@ async login(loginData: LoginAuthDto){
 
     // es para validar y compara la contraseña
     if (!isPasswordValid){
-         return new HttpException('La contraseña es incorrecta',HttpStatus.FORBIDDEN); // error 403 es sobre acceso negado
+         throw new HttpException('La contraseña es incorrecta',HttpStatus.FORBIDDEN); // error 403 es sobre acceso negado
    
     }
 

@@ -7,6 +7,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import storage = require ('../utils/cloud_storage');
 import { Rol } from 'src/roles/role.entity';
+import { threadId } from 'worker_threads';
 
 @Injectable()
 export class UsersService {
@@ -32,7 +33,7 @@ export class UsersService {
         const userFound = await this.usersRepository.findOneBy({id:id});
 
         if (!userFound){
-            return new HttpException('Usuario no existe', HttpStatus.NOT_FOUND);
+            throw new HttpException('Usuario no existe', HttpStatus.NOT_FOUND);
         }
 
         const updateUser = Object.assign(userFound, user);
@@ -44,14 +45,14 @@ export class UsersService {
         console.log('URL: '+ url);
 
         if (url === undefined && url === null){
-            return new HttpException('La imagen no se pudo guardar', HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException('La imagen no se pudo guardar', HttpStatus.INTERNAL_SERVER_ERROR);
 
         }
 
         const userFound = await this.usersRepository.findOneBy({id:id});
 
         if (!userFound){
-            return new HttpException('Usuario no existe', HttpStatus.NOT_FOUND);
+            throw new HttpException('Usuario no existe', HttpStatus.NOT_FOUND);
         }
         user.imagen = url;
         const updateUser = Object.assign(userFound, user);

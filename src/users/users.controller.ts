@@ -4,6 +4,9 @@ import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtRolesGuard } from 'src/auth/jwt/jwt-roles.guard';
+import { HasRoles } from 'src/auth/jwt/has-roles';
+import { JwtRole } from 'src/auth/jwt/jwt-role';
 
 @Controller('users')
 export class UsersController {
@@ -17,7 +20,8 @@ export class UsersController {
     //put-patch -> actualizar
     //delete -> borrar
 
-    @UseGuards(JwtAuthGuard)
+    @HasRoles(JwtRole.ADMIN, JwtRole.CLIENT)//solamente puedem acceder los que sean admin
+    @UseGuards(JwtAuthGuard, JwtRolesGuard)
     @Get() //ruta -> http://192.168.0.106:3000/users --> get
     findAll(){
         return this.usersService.findAll();
@@ -29,13 +33,16 @@ export class UsersController {
      return this.usersService.create(user);
     }
 
-    @UseGuards(JwtAuthGuard)
+    @HasRoles( JwtRole.CLIENT)
+    @UseGuards(JwtAuthGuard, JwtRolesGuard)
     @Put(':id') //ruta -> http://192.168.0.106:3000/users/:id --> post
     update(@Param('id', ParseIntPipe)id: number, @Body()user: UpdateUserDto){
      return this.usersService.update(id,user);
     }
 
-    @UseGuards(JwtAuthGuard)
+    
+    @HasRoles( JwtRole.CLIENT)
+    @UseGuards(JwtAuthGuard,JwtRolesGuard)
     @Post('upload/:id')
     @UseInterceptors(FileInterceptor('file'))
     updateWithImage(
