@@ -1,7 +1,7 @@
 import { Body, Controller,  Post,Get, UseGuards, Put, Param, ParseIntPipe, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -35,6 +35,7 @@ export class UsersController {
      return this.usersService.update(id,user);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post('upload/:id')
     @UseInterceptors(FileInterceptor('file'))
     updateWithImage(

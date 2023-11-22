@@ -21,9 +21,11 @@ export class UsersService {
         return this.usersRepository.save(newUser);
     }
 
+
+    
 //metodo para encontrar todos los datos
     findAll(){
-        return this.usersRepository.find()
+        return this.usersRepository.find({ relations: ['roles'] })
     }
 
     async update(id: number, user: UpdateUserDto){

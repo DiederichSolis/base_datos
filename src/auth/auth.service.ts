@@ -77,7 +77,13 @@ async login(loginData: LoginAuthDto){
    
     }
 
-    const payload = {id: userfound.id, name: userfound.name};
+    const rolesIds = userfound.roles.map(rol=> rol.id);
+
+
+
+    const payload = {id: userfound.id,
+         name: userfound.name,
+          roles: rolesIds};
     const token = this.jwtService.sign(payload);
     const data ={
         user:userfound,
